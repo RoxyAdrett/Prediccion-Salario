@@ -44,30 +44,3 @@ if st.button("Calcular Salario Principal"):
     st.write(f"### El salario estimado es: ${st.session_state.res_principal:,.2f}")
 
 st.divider()
-
-# --- SECCIÓN INFERIOR: Test Comparativo ---
-st.subheader("Test Comparativo de Escenarios")
-
-def generar_test():
-    # Simulamos 3 escenarios aleatorios
-    scenarios = [
-        {'exp': 2, 'skills': 2, 'edu': 'High School', 'ind': 'Education'},
-        {'exp': 10, 'skills': 8, 'edu': 'Bachelor', 'ind': 'Technology'},
-        {'exp': 20, 'skills': 15, 'edu': 'PhD', 'ind': 'Finance'}
-    ]
-    results = []
-    for s in scenarios:
-        df = pd.DataFrame(np.zeros((1, len(cols))), columns=cols)
-        df['experience_years'] = float(s['exp'])
-        df['skills_count'] = float(s['skills'])
-        df[f"education_level_{s['edu']}"] = 1.0
-        df[f"industry_{s['ind']}"] = 1.0
-        val = model.predict(df)[0]
-        results.append({"Escenario": f"{s['edu']} en {s['ind']} ({s['exp']} años)", "Salario": f"${val:,.2f}"})
-    return results
-
-if st.button("Test Nuevo"):
-    st.session_state.test_data = generar_test()
-
-if 'test_data' in st.session_state:
-    st.table(pd.DataFrame(st.session_state.test_data))

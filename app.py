@@ -3,7 +3,7 @@ import joblib
 import pandas as pd
 
 # Cargar tu modelo
-model = joblib.load('mejor_modelo_salario (1).pkl')
+model = joblib.load('mejor_modelo_salario.pkl')
 
 st.title("Demo: Predicción Salarial")
 

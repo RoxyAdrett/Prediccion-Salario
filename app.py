@@ -25,8 +25,8 @@ COLUMNS = ['experience_years', 'skills_count', 'certifications', 'is_outlier_mul
 st.title("Demo: Predicción Salarial")
 
 # Entradas simples
-exp = st.number_input("Años de experiencia", 0.0, 40.0, 5.0)
-skills = st.number_input("Cantidad de habilidades", 1.0, 20.0, 5.0)
+exp = st.number_input("Años de experiencia", 0, 40, 5)
+skills = st.number_input("Cantidad de habilidades", 1, 20, 5)
 
 # Para las otras variables, definimos valores por defecto (ej: 0)
 # En una app real, deberías añadir más inputs para que el usuario elija, 

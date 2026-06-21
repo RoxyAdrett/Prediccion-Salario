@@ -27,6 +27,9 @@ st.title("Demo: Predicción Salarial")
 # Entradas simples
 exp = st.number_input("Años de experiencia", 0, 40, 5)
 skills = st.number_input("Cantidad de habilidades", 1, 20, 5)
+# Añade esto después de las variables 'exp' y 'skills'
+educacion = st.selectbox("Nivel de educación", ['Bachelor', 'Master', 'PhD', 'Diploma'])
+industria = st.selectbox("Industria", ['Technology', 'Finance', 'Healthcare', 'Consulting'])
 
 # Para las otras variables, definimos valores por defecto (ej: 0)
 # En una app real, deberías añadir más inputs para que el usuario elija, 
@@ -42,8 +45,9 @@ if st.button("Calcular Salario"):
     
     # Aquí puedes añadir los valores por defecto que se usaron en el entrenamiento 
     # (por ejemplo, educación Bachelor=1)
-    input_df['education_level_Bachelor'] = 1 
-    input_df['industry_Technology'] = 1
+    # En la lógica del botón, modifica la asignación:
+    input_df[f'education_level_{educacion}'] = 1
+    input_df[f'industry_{industria}'] = 1
 
     resultado = model.predict(input_df)
     st.write(f"### El salario estimado es: ${resultado[0]:,.2f}")

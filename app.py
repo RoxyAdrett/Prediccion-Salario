@@ -10,7 +10,7 @@ def load_model():
 
 model = load_model()
 
-# Lista de columnas (las mismas 38)
+# --- 1. Definición de columnas esperadas por el modelo ---
 cols = ['experience_years', 'skills_count', 'certifications', 'is_outlier_multivariate', 
         'education_level_Bachelor', 'education_level_Diploma', 'education_level_High School', 
         'education_level_Master', 'education_level_PhD', 'industry_Consulting', 'industry_Education', 
@@ -22,48 +22,46 @@ cols = ['experience_years', 'skills_count', 'certifications', 'is_outlier_multiv
         'location_Sweden', 'location_UK', 'location_USA', 'remote_work_Hybrid', 
         'remote_work_No', 'remote_work_Yes', 'job_title_encoded']
 
-# Diccionarios de mapeo para traducir la selección al formato que entiende el modelo
-mapa_educacion = {
-    'Licenciatura / Grado universitario': 'Bachelor',
-    'Máster / Maestría': 'Master',
-    'Doctorado': 'PhD',
-    'Diplomatura / Título técnico': 'Diploma',
-    'Enseñanza media / Secundaria completa': 'High School'
-}
-
-mapa_industria = {
-    'Tecnología': 'Technology',
-    'Finanzas': 'Finance',
-    'Salud / Servicios sanitarios': 'Healthcare',
-    'Consultoría': 'Consulting',
-    'Educación': 'Education'
-}
-
+# --- 2. Interfaz de Usuario ---
 st.title("Demo: Predicción Salarial")
 
-# --- SECCIÓN SUPERIOR ---
-col1, col2 = st.columns(2)
-with col1:
-    exp = st.number_input("Años de experiencia", 0, 40, 5, 1)
-    educacion_esp = st.selectbox("Educación", list(mapa_educacion.keys()))
-with col2:
-    skills = st.number_input("Cantidad de habilidades", 1, 20, 5, 1)
-    industria_esp = st.selectbox("Industria", list(mapa_industria.keys()))
+# Inputs numéricos
+exp = st.number_input("Años de experiencia", 0, 40, 5)
+skills = st.number_input("Cantidad de habilidades", 1, 20, 5)
+certs = st.number_input("Certificaciones", 0, 10, 0)
 
-if st.button("Calcular Salario Principal"):
-    # Convertimos la selección de usuario al valor que espera el modelo
-    educacion_en = mapa_educacion[educacion_esp]
-    industria_en = mapa_industria[industria_esp]
+# Selectboxes para categóricas
+educacion = st.selectbox("Educación", ['Bachelor', 'Diploma', 'High School', 'Master', 'PhD'])
+industria = st.selectbox("Industria", ['Consulting', 'Education', 'Finance', 'Government', 'Healthcare', 'Manufacturing', 'Media', 'Retail', 'Technology', 'Telecom'])
+empresa = st.selectbox("Tamaño de empresa", ['Enterprise', 'Large', 'Medium', 'Small', 'Startup'])
+ubicacion = st.selectbox("Ubicación", ['Australia', 'Canada', 'Germany', 'India', 'Netherlands', 'Remote', 'Singapore', 'Sweden', 'UK', 'USA'])
+remoto = st.selectbox("Trabajo remoto", ['Hybrid', 'No', 'Yes'])
+
+# Para job_title, necesitas el diccionario de codificación que usaste en el entrenamiento
+# Ejemplo: job_map = {'Data Scientist': 120000, 'Developer': 90000}
+titulo_puesto = st.text_input("Título del puesto (ej: Data Scientist)")
+
+if st.button("Calcular Salario"):
+    # --- 3. Preparación del DataFrame ---
+    # Creamos un DF con ceros para todas las columnas
+    input_df = pd.DataFrame(0, index=[0], columns=cols)
     
-    input_df = pd.DataFrame(np.zeros((1, len(cols))), columns=cols)
+    # Asignamos valores numéricos
     input_df['experience_years'] = float(exp)
     input_df['skills_count'] = float(skills)
+    input_df['certifications'] = float(certs)
     
-    # Usamos los valores en inglés para activar la columna correcta
-    input_df[f'education_level_{educacion_en}'] = 1.0
-    input_df[f'industry_{industria_en}'] = 1.0
+    # Activamos la categoría seleccionada (One-Hot Encoding)
+    input_df[f'education_level_{educacion}'] = 1.0
+    input_df[f'industry_{industria}'] = 1.0
+    input_df[f'company_size_{empresa}'] = 1.0
+    input_df[f'location_{ubicacion}'] = 1.0
+    input_df[f'remote_work_{remoto}'] = 1.0
     
-    st.session_state.res_principal = model.predict(input_df)[0]
-    st.write(f"### El salario estimado es: ${st.session_state.res_principal:,.2f}")
+    # --- 4. Manejo del Target Encoding para Job Title ---
+    # IMPORTANTE: Aquí debes poner el valor numérico calculado en tu entrenamiento
+    # Si no sabes el valor, el modelo fallará o dará un resultado incorrecto
+    input_df['job_title_encoded'] = 100000.0 # Reemplaza por tu mapeo real
 
-st.divider()
+    prediccion = model.predict(input_df)[0]
+    st.success(f"### Salario estimado: ${prediccion:,.2f} USD")

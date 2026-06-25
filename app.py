@@ -22,23 +22,46 @@ cols = ['experience_years', 'skills_count', 'certifications', 'is_outlier_multiv
         'location_Sweden', 'location_UK', 'location_USA', 'remote_work_Hybrid', 
         'remote_work_No', 'remote_work_Yes', 'job_title_encoded']
 
+# Diccionarios de mapeo para traducir la selección al formato que entiende el modelo
+mapa_educacion = {
+    'Licenciatura / Grado universitario': 'Bachelor',
+    'Máster / Maestría': 'Master',
+    'Doctorado': 'PhD',
+    'Diplomatura / Título técnico': 'Diploma',
+    'Enseñanza media / Secundaria completa': 'High School'
+}
+
+mapa_industria = {
+    'Tecnología': 'Technology',
+    'Finanzas': 'Finance',
+    'Salud / Servicios sanitarios': 'Healthcare',
+    'Consultoría': 'Consulting',
+    'Educación': 'Education'
+}
+
 st.title("Demo: Predicción Salarial")
 
-# --- SECCIÓN SUPERIOR: Predicción principal ---
+# --- SECCIÓN SUPERIOR ---
 col1, col2 = st.columns(2)
 with col1:
     exp = st.number_input("Años de experiencia", 0, 40, 5, 1)
-    educacion = st.selectbox("Educación", ['Licenciatura / Grado universitario', 'Máster / Maestría', 'Doctorado', 'Diplomatura / Título técnico', 'Enseñanza media / Secundaria completa'])
+    educacion_esp = st.selectbox("Educación", list(mapa_educacion.keys()))
 with col2:
     skills = st.number_input("Cantidad de habilidades", 1, 20, 5, 1)
-    industria = st.selectbox("Industria", ['Tecnología', 'Finanzas', 'Salud / Servicios sanitarios', 'Consultoría', 'Educación'])
+    industria_esp = st.selectbox("Industria", list(mapa_industria.keys()))
 
 if st.button("Calcular Salario Principal"):
+    # Convertimos la selección de usuario al valor que espera el modelo
+    educacion_en = mapa_educacion[educacion_esp]
+    industria_en = mapa_industria[industria_esp]
+    
     input_df = pd.DataFrame(np.zeros((1, len(cols))), columns=cols)
     input_df['experience_years'] = float(exp)
     input_df['skills_count'] = float(skills)
-    input_df[f'education_level_{educacion}'] = 1.0
-    input_df[f'industry_{industria}'] = 1.0
+    
+    # Usamos los valores en inglés para activar la columna correcta
+    input_df[f'education_level_{educacion_en}'] = 1.0
+    input_df[f'industry_{industria_en}'] = 1.0
     
     st.session_state.res_principal = model.predict(input_df)[0]
     st.write(f"### El salario estimado es: ${st.session_state.res_principal:,.2f}")

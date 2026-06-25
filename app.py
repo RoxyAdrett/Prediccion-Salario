@@ -28,10 +28,10 @@ st.title("Demo: Predicción Salarial")
 col1, col2 = st.columns(2)
 with col1:
     exp = st.number_input("Años de experiencia", 0, 40, 5, 1)
-    educacion = st.selectbox("Educación", ['Bachelor', 'Master', 'PhD', 'Diploma', 'High School'])
+    educacion = st.selectbox("Educación", ['Licenciatura / Grado universitario', 'Máster / Maestría', 'Doctorado', 'Diplomatura / Título técnico', 'Enseñanza media / Secundaria completa'])
 with col2:
     skills = st.number_input("Cantidad de habilidades", 1, 20, 5, 1)
-    industria = st.selectbox("Industria", ['Technology', 'Finance', 'Healthcare', 'Consulting', 'Education'])
+    industria = st.selectbox("Industria", ['Tecnología', 'Finanzas', 'Salud / Servicios sanitarios', 'Consultoría', 'Educación'])
 
 if st.button("Calcular Salario Principal"):
     input_df = pd.DataFrame(np.zeros((1, len(cols))), columns=cols)
